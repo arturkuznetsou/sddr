@@ -1,0 +1,18 @@
+#!/bin/sh
+
+
+devices=$(lsblk -n | grep '..sd.*part $' | sed 's/^..//'  | awk '{print $1 " (" $4 ")"}' )
+
+if [ "$devices" = "" ]; then
+	exit
+fi
+
+picked=$(echo "$devices" | dmenu -p "Choose drive" | awk '{ print $1}')
+
+echo $picked
+if [ "$picked" = "" ]; then
+	exit
+fi
+
+directory=$( find ~ -maxdepth 2 -type d | dmenu -l 30)
+sudo mount '/dev/'$picked $directory

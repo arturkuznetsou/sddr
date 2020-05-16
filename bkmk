@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+bookmarkfile=~/Documents/'bookmarks'
+choice=$(grep -vE 'https?://|^\s*$' $bookmarkfile | sed 's/:$//' | dmenu -i)
+
+[ "$choice" = "" ] && exit
+
+$BROWSER $(cat $bookmarkfile| grep -A 1 "$choice" | awk "NR==2{print}")

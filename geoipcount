@@ -1,0 +1,42 @@
+#!/bin/sh
+
+#
+#	HOW TO USE IT:
+#		run ./geoipcount and get results
+#		to get all the IP's from a country run it with the -f <COUNTRY> option
+#		USES UPPERCASE TWO LETTER CODES. (NL, US and not nl, us).
+#
+
+
+
+
+#access log files
+aclogfiles=/var/log/httpd/access_log*
+
+# Get all unique IP's
+ip=$(sed -e "s/ .*$/\n/g" $aclogfiles | grep -v "::1" | sort | uniq)
+
+
+
+findaddr()
+{
+	for n in $ip; do
+		ipcountr=$(geoiplookup $n | awk '{print $4}')
+		if [ $ipcountr = $1"," ]; then
+			echo $n
+		fi
+	done
+	exit
+}
+
+
+while getopts "f:i:" o; do
+	case "${o}" in
+		f)
+			findaddr $OPTARG
+			;;
+	esac
+done
+
+for n in $ip; do geoiplookup $n; done | sort | uniq -c | \
+	sed 's/ GeoIP Country Edition: .../ /g'

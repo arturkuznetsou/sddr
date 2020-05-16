@@ -1,0 +1,13 @@
+#!/bin/sh
+
+dir=~/cell
+fusermount -u $dir
+
+device=$(simple-mtpfs -l | grep '[0-9]' | dmenu | sed 's/:.*//')
+
+if [ $device = '' ]; then
+	exit
+fi
+
+
+simple-mtpfs --device $device $dir
