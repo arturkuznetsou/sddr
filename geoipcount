@@ -1,23 +1,19 @@
-#!/bin/sh
+#!/bin/bash
+
 
 #
 #	HOW TO USE IT:
-#		run ./geoipcount and get results
-#		to get all the IP's from a country run it with the -f <COUNTRY> option
+#		run ./geoipcount and get results.
+#		To get all the IP's from a country run it with the -f <COUNTRY> option.
 #		USES UPPERCASE TWO LETTER CODES. (NL, US and not nl, us).
 #
 
 
+# File from which the IP's will be retrieved and FINDADDR variable
+ipfiles=""
+FINDADDR=""
 
-
-#access log files
-aclogfiles=/var/log/httpd/access_log*
-
-# Get all unique IP's
-ip=$(sed -e "s/ .*$/\n/g" $aclogfiles | grep -v "::1" | sort | uniq)
-
-
-
+#Function to find all IP's of one country
 findaddr()
 {
 	for n in $ip; do
@@ -28,15 +24,30 @@ findaddr()
 	done
 	exit
 }
-
-
-while getopts "f:i:" o; do
+while getopts "f:h" o; do
 	case "${o}" in
 		f)
-			findaddr $OPTARG
+			FINDADDR=$OPTARG
 			;;
+		h)
+			echo "geoipcount [OPTION...] [FILE]"
+			echo "Gets all IPs from a file and counts the amount of IPs per country."
+			exit;
 	esac
 done
+ipfiles=${@:$OPTIND}
 
-for n in $ip; do geoiplookup $n; done | sort | uniq -c | \
-	sed 's/ GeoIP Country Edition: .../ /g'
+# Get all unique IP's
+# Catting into grep to prevent grep from displaying file
+# (grepping multiple files results in it printing the file which messes with the command)
+ip=$(cat $ipfiles | grep -o "[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*" \
+	| grep -ve "::1" -e "^192" | sort | uniq)
+
+# Count all individual country occurences if FINDADDR is not defined
+if [[ $FINDADDR = "" ]]; then
+	for n in $ip; do geoiplookup $n; done | sort | uniq -c | \
+		sed 's/ GeoIP Country Edition: .../ /g'
+	exit
+fi
+
+findaddr $FINDADDR
