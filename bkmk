@@ -1,7 +1,21 @@
 #!/bin/bash
 
 
-bookmarkfile=~/Documents/'bookmarks'
+#
+# Bookmarking script
+# Opens the link with the $BROWSER environment variable
+# Format of the bookmark file:
+#
+# <Name of bookmark>:
+# <Link>
+#
+# Usage:
+#	  bkmk
+#	  Set the bookmarkfile variable to the path to your bookmark file and enjoy
+#
+
+
+bookmarkfile=~/Documents/bookmarks
 choice=$(grep -vE 'https?://|^\s*$' $bookmarkfile | sed 's/:$//' | dmenu -i)
 
 [ "$choice" = "" ] && exit
