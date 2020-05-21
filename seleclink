@@ -1,0 +1,12 @@
+#!/bin/sh
+
+#
+# Select all the links from a file and open them with your browser
+# The default browser is the browser in the $BROWSER directory
+#
+#
+
+br=$BROWSER
+choice=$(grep -o "https*://.*" $1 | sed "s/ .*//g" | dmenu -l 30)
+[ "$choice" = "" ] && exit 1
+$br $choice
