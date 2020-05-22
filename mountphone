@@ -1,7 +1,13 @@
 #!/bin/sh
 
-dir=~/cell
-fusermount -u $dir
+no_phone()
+{
+	notify-send "No phone found"
+	exit
+}
+devs=$(simple-mtpfs -l | grep '[0-9]') || no_phone
+
+dir=$(find ~ -maxdepth 3 | dmenu -l 20) || exit
 
 device=$(simple-mtpfs -l | grep '[0-9]' | dmenu | sed 's/:.*//')
 
@@ -10,4 +16,4 @@ if [ $device = '' ]; then
 fi
 
 
-simple-mtpfs --device $device $dir
+simple-mtpfs --device $device $dir || notify-send "Failed to mount phone"
